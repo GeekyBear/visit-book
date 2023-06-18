@@ -1,7 +1,6 @@
 <template>
-  <main>
-    <h1>Building visit book</h1>
-    <b-table striped hover :items="items" :fields="fields">
+  <main class="container">
+    <b-table class="btable" stacked="sm" responsive="md" striped hover :items="items" :fields="fields">
       <template v-slot:cell(edit)="data">
         <router-link :to="{
           name: 'UpdateView',
@@ -12,7 +11,7 @@
         }" tag="button" class="btn btn-info"><b-icon icon="pencil-square"></b-icon></router-link>
       </template>
       <template v-slot:cell(delete)="data">
-        <b-button size="sm" class="btn btn-danger" @click="removeVisit(data.item.id)">
+        <b-button class="btn btn-danger" @click="removeVisit(data.item.id)">
           <b-icon icon="trash"></b-icon>
         </b-button>
       </template>
@@ -29,12 +28,11 @@ export default {
   name: 'Home',
   data() {
     return {
-      newVisitTitle: "",
-      newVisitDescription: "",
+
       items: [],
       fields: [
-        { key: 'title' },
-        { key: 'description' },
+        { key: 'firstname' },
+        { key: 'lastname' },
         { key: 'createdAt' },
         { key: 'Edit', label: 'Edit' },
         { key: 'Delete', label: 'Delete' }],
@@ -42,9 +40,10 @@ export default {
   },
   async mounted() {
     try {
-      const response = await fetch("https://0slrsqlw38.execute-api.sa-east-1.amazonaws.com/tasks");
+      const response = await fetch("https://0slrsqlw38.execute-api.sa-east-1.amazonaws.com/visitors");
       const resJson = await response.json();
-      this.items = resJson.body.tasks;
+      this.items = resJson.body.visitors;
+
     } catch (error) {
       console.log(error);
     }
@@ -54,22 +53,43 @@ export default {
   },
   methods: {
     async fetchItems() {
-      const response = await fetch("https://0slrsqlw38.execute-api.sa-east-1.amazonaws.com/tasks");
+      const response = await fetch("https://0slrsqlw38.execute-api.sa-east-1.amazonaws.com/visitors");
       const resJson = await response.json();
-      this.items = resJson.body.tasks;
+      this.items = resJson.body.visitors;
     },
+
     async addVisit() {
       this.$router.push({ name: 'CreateView' })
     },
+
     async removeVisit(visitId) {
-      await fetch(`https://0slrsqlw38.execute-api.sa-east-1.amazonaws.com/tasks/${visitId}`, {
-        method: "delete",
-        headers: {
-          "Content-Type": "application/json"
-        },
-      });
-      await this.fetchItems();
+      this.$bvModal.msgBoxConfirm('Please confirm that you want to delete everything.', {
+        title: 'Please Confirm',
+        size: 'sm',
+        buttonSize: 'sm',
+        okVariant: 'danger',
+        okTitle: 'YES',
+        cancelTitle: 'NO',
+        footerClass: 'p-2',
+        hideHeaderClose: false,
+        centered: true
+      })
+        .then(async (value) => {
+          if (value) {
+            await fetch(`https://0slrsqlw38.execute-api.sa-east-1.amazonaws.com/visitors/${visitId}`, {
+              method: "delete",
+              headers: {
+                "Content-Type": "application/json"
+              },
+            });
+            await this.fetchItems();
+          }
+        })
+        .catch(err => {
+          console.log(err);
+        })
     },
+
   }
 }
 </script>
@@ -94,9 +114,20 @@ input {
 
 .add-visit-wrapper {
   display: flex;
+  justify-content: flex-end;
 }
 
 .add-visit-wrapper input {
-  flex: 1
+  flex: 1;
+}
+
+
+@media (max-width: 1024px) {
+
+  #app {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    padding: 0 2rem;
+  }
 }
 </style>

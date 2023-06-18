@@ -1,35 +1,36 @@
 <template>
-    <div>
-        <div class="add-visit-wrapper">
-            <p>ID: {{ $route.params.id }}</p>
-            <p>Name</p>
-            <input type="text" v-model="newVisitTitle" @keydown.enter="updateVisitor" />
-            <p>Lastname</p>
-            <input type="text" v-model="newVisitDescription" @keydown.enter="updateVisitor" />
-        </div>
-        <div class="add-visit-wrapper">
-            <button @click="updateVisitor">Update visitor</button>
-        </div>
+    <div class="container">
+        <b-card bg-variant="light">
+            <b-form-group label-cols-lg="3" label="Update visitor" label-size="lg" label-class="font-weight-bold pt-0"
+                class="mb-0">
+                <b-form-group label-cols="4" label-cols-lg="2" label="Name" label-for="input-default">
+                    <b-form-input id="input-default" v-model="newVisitName" @keydown.enter="updateVisitor"></b-form-input>
+                </b-form-group>
+                <b-form-group label-cols="4" label-cols-lg="2" label="Lastname" label-for="input-default">
+                    <b-form-input id="input-default" v-model="newVisitLastname"
+                        @keydown.enter="updateVisitor"></b-form-input>
+                </b-form-group>
+            </b-form-group>
+            <b-button variant="outline-danger" class="mt-3 mx-2" @click="goBack">Cancel</b-button>
+            <b-button variant="primary" class="mt-3" @click="updateVisitor">Update</b-button>
+        </b-card>
     </div>
 </template>
   
 <script>
 export default {
     name: 'UpdateView',
-    mounted() {
-        console.log(this.$route.params)
-    },
     data() {
         return {
-            newVisitTitle: "",
-            newVisitDescription: "",
+            newVisitName: "",
+            newVisitLastname: "",
         }
     },
     async created() {
-        const response = await fetch(`https://0slrsqlw38.execute-api.sa-east-1.amazonaws.com/tasks/${this.$route.params.id}`);
+        const response = await fetch(`https://0slrsqlw38.execute-api.sa-east-1.amazonaws.com/visitors/${this.$route.params.id}`);
         const resJson = await response.json();
-        this.newVisitTitle = resJson.body.title;
-        this.newVisitDescription = resJson.body.description;
+        this.newVisitName = resJson.body.firstname;
+        this.newVisitLastname = resJson.body.lastname;
     },
     components: {
 
@@ -38,12 +39,11 @@ export default {
         async updateVisitor() {
             try {
                 let newVisit = {
-                    title: this.newVisitTitle,
-                    description: this.newVisitDescription,
-                    done: true
+                    firstname: this.newVisitName,
+                    lastname: this.newVisitLastname,
                 };
 
-                await fetch(`https://0slrsqlw38.execute-api.sa-east-1.amazonaws.com/tasks/${this.$route.params.id}`, {
+                const response = await fetch(`https://0slrsqlw38.execute-api.sa-east-1.amazonaws.com/visitors/${this.$route.params.id}`, {
                     method: "put",
                     headers: {
                         "Content-Type": "application/json"
@@ -51,15 +51,24 @@ export default {
                     body: JSON.stringify(newVisit)
                 })
 
-
-                this.newVisitTitle = "";
-                this.newVisitDescription = "";
-                this.$router.back()
+                this.newVisitName = "";
+                this.newVisitLastname = "";
+                this.$router.back();
             } catch (error) {
                 console.log(error)
             }
 
         },
+        goBack() {
+            console.log('Update canceled');
+            this.$router.back();
+        }
     }
 }
 </script>
+
+<style scoped>
+.container {
+    min-width: 600px
+}
+</style>
