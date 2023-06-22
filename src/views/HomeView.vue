@@ -28,7 +28,6 @@ export default {
   name: 'Home',
   data() {
     return {
-
       items: [],
       fields: [
         { key: 'firstname' },
@@ -40,7 +39,7 @@ export default {
   },
   async mounted() {
     try {
-      const response = await fetch("https://0slrsqlw38.execute-api.sa-east-1.amazonaws.com/visitors");
+      const response = await fetch(import.meta.env.VITE_API_URL + "/visitors");
       const resJson = await response.json();
       this.items = resJson.body.visitors;
 
@@ -53,7 +52,7 @@ export default {
   },
   methods: {
     async fetchItems() {
-      const response = await fetch("https://0slrsqlw38.execute-api.sa-east-1.amazonaws.com/visitors");
+      const response = await fetch(import.meta.env.VITE_API_URL + "/visitors");
       const resJson = await response.json();
       this.items = resJson.body.visitors;
     },
@@ -76,7 +75,7 @@ export default {
       })
         .then(async (value) => {
           if (value) {
-            await fetch(`https://0slrsqlw38.execute-api.sa-east-1.amazonaws.com/visitors/${visitId}`, {
+            await fetch(import.meta.env.VITE_API_URL + `/visitors/${visitId}`, {
               method: "delete",
               headers: {
                 "Content-Type": "application/json"
